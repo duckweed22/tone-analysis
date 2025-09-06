@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.11",
-    "vant": "^4.8.1",
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "vant": "^4.9.21",
+    "vue": "^3.3.11"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.2",

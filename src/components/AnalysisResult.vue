@@ -75,6 +75,99 @@
             <span class="text-gray-500">厚度：</span>
             <span class="font-medium">{{ result.coatingThickness }}</span>
           </div>
+          <div v-if="result.coatingMoisture">
+            <span class="text-gray-500">润燥：</span>
+            <span class="font-medium">{{ result.coatingMoisture }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 脏腑功能状态 -->
+      <div v-if="result.organStatus" class="detail-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-medium text-gray-800 flex items-center">
+            <div class="w-3 h-3 bg-blue-400 rounded-full mr-2"></div>
+            脏腑功能状态
+          </h3>
+        </div>
+        <div class="space-y-3">
+          <div v-for="(organ, key) in result.organStatus" :key="key" class="flex items-center justify-between">
+            <span class="text-gray-600 text-sm">{{ getOrganName(key) }}：</span>
+            <div class="flex items-center">
+              <span class="text-sm font-medium mr-2">{{ organ.status }}</span>
+              <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  class="h-full transition-all duration-500"
+                  :style="{ 
+                    width: organ.score + '%',
+                    backgroundColor: getScoreColor(organ.score)
+                  }"
+                ></div>
+              </div>
+              <span class="text-xs text-gray-500 ml-2">{{ organ.score }}分</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 体质分析 -->
+      <div v-if="result.constitutionType || result.pathologyPattern" class="detail-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-medium text-gray-800 flex items-center">
+            <div class="w-3 h-3 bg-purple-400 rounded-full mr-2"></div>
+            体质分析
+          </h3>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div v-if="result.constitutionType">
+            <span class="text-gray-500">体质类型：</span>
+            <span class="font-medium text-purple-600">{{ result.constitutionType }}</span>
+          </div>
+          <div v-if="result.pathologyPattern">
+            <span class="text-gray-500">主要病机：</span>
+            <span class="font-medium text-red-600">{{ result.pathologyPattern }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主要健康隐患 -->
+      <div v-if="result.primaryConcerns && result.primaryConcerns.length > 0" class="detail-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-medium text-gray-800 flex items-center">
+            <div class="w-3 h-3 bg-orange-400 rounded-full mr-2"></div>
+            主要健康隐患
+          </h3>
+        </div>
+        <div class="space-y-2">
+          <div 
+            v-for="(concern, index) in result.primaryConcerns" 
+            :key="index"
+            class="flex items-start p-2 bg-orange-50 rounded-lg"
+          >
+            <div class="w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center text-white text-xs font-medium mr-3 flex-shrink-0 mt-0.5">
+              {{ index + 1 }}
+            </div>
+            <p class="text-gray-700 text-sm">{{ concern }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 风险区域 -->
+      <div v-if="result.riskAreas && result.riskAreas.length > 0" class="detail-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-medium text-gray-800 flex items-center">
+            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+            风险区域
+          </h3>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span 
+            v-for="(risk, index) in result.riskAreas" 
+            :key="index"
+            class="px-3 py-1 bg-red-100 text-red-700 text-xs rounded-full"
+          >
+            {{ risk }}
+          </span>
         </div>
       </div>
     </div>
@@ -204,7 +297,29 @@ const shareResult = async () => {
     })
 
     // 创建分享内容
-    const shareText = `我的AI舌诊健康分析结果：\n健康评分：${props.result.score}分\n舌质：${props.result.tongueColor}\n舌苔：${props.result.coatingColor}`
+    let shareText = `我的AI舌诊健康分析结果：\n健康评分：${props.result.score}分\n\n舌质分析：\n- 颜色：${props.result.tongueColor}\n- 形态：${props.result.tongueShape}`
+    
+    shareText += `\n\n舌苔分析：\n- 颜色：${props.result.coatingColor}\n- 厚度：${props.result.coatingThickness}`
+    
+    if (props.result.coatingMoisture) {
+      shareText += `\n- 润燥：${props.result.coatingMoisture}`
+    }
+    
+    if (props.result.constitutionType) {
+      shareText += `\n\n体质分析：\n- 体质类型：${props.result.constitutionType}`
+    }
+    
+    if (props.result.pathologyPattern) {
+      shareText += `\n- 主要病机：${props.result.pathologyPattern}`
+    }
+    
+    if (props.result.primaryConcerns && props.result.primaryConcerns.length > 0) {
+      shareText += `\n\n主要健康隐患：\n${props.result.primaryConcerns.map((concern, index) => `${index + 1}. ${concern}`).join('\n')}`
+    }
+    
+    if (props.result.suggestions && props.result.suggestions.length > 0) {
+      shareText += `\n\n健康建议：\n${props.result.suggestions.map((suggestion, index) => `${index + 1}. ${suggestion}`).join('\n')}`
+    }
 
     Toast.clear()
 
@@ -246,6 +361,26 @@ const handleRestart = () => {
   if (confirm('是否要重新进行舌诊分析？')) {
     emit('restart')
   }
+}
+
+// 获取脏腑名称
+const getOrganName = (key) => {
+  const organNames = {
+    spleen: '脾胃',
+    liver: '肝胆',
+    heart: '心',
+    lung: '肺',
+    kidney: '肾'
+  }
+  return organNames[key] || key
+}
+
+// 获取分数对应的颜色
+const getScoreColor = (score) => {
+  if (score >= 85) return '#10B981'  // 绿色 - 优秀
+  if (score >= 75) return '#F59E0B'  // 黄色 - 良好
+  if (score >= 65) return '#F97316'  // 橙色 - 一般
+  return '#EF4444'                   // 红色 - 较差
 }
 
 // 组件挂载时启动分数动画
