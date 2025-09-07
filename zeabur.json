@@ -6,11 +6,11 @@
       "source": {
         "type": "git",
         "url": "https://github.com/duckweed22/tone-analysis.git",
-        "path": "tone-analysis/backend"
+        "path": "."
       },
       "build": {
-        "command": "cd tone-analysis/backend && npm install",
-        "start": "cd tone-analysis/backend && npm start"
+        "command": "cd backend && npm install",
+        "start": "cd backend && npm start"
       },
       "env": {
         "NODE_ENV": "production",
@@ -26,11 +26,11 @@
       "source": {
         "type": "git",
         "url": "https://github.com/duckweed22/tone-analysis.git",
-        "path": "tone-analysis"
+        "path": "."
       },
       "build": {
-        "command": "cd tone-analysis && npm install && npm run build",
-        "start": "cd tone-analysis && npx serve -s dist -l 3000"
+        "command": "npm install && npm run build",
+        "start": "npx serve -s dist -l 3000"
       },
       "env": {
         "NODE_ENV": "production",
