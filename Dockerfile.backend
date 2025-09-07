@@ -5,13 +5,13 @@ FROM node:18-alpine
 WORKDIR /app
 
 # 先复制package.json
-COPY tone-analysis/backend/package*.json ./
+COPY backend/package*.json ./
 
 # 安装依赖
-RUN npm install
+RUN npm ci --only=production
 
 # 复制所有源代码
-COPY tone-analysis/backend/ .
+COPY backend/ .
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs

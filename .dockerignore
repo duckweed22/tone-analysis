@@ -9,5 +9,6 @@ coverage
 .vscode
 .idea
 *.log
-dist
 .DS_Store
+dist
+backend/node_modules
