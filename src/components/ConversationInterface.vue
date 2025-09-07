@@ -152,7 +152,17 @@
                     </div>
                   </div>
                   
-                  <div class="mt-4 flex justify-end">
+                  <div class="mt-4 flex justify-between">
+                    <button
+                      @click="skipQuestions"
+                      class="skip-button"
+                    >
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                      </svg>
+                      跳过问诊
+                    </button>
+                    
                     <button
                       @click="submitAnswers"
                       :disabled="!allQuestionsAnswered"
@@ -377,6 +387,60 @@ const submitAnswers = async () => {
   }
 }
 
+// 跳过问诊，直接生成报告
+const skipQuestions = async () => {
+  try {
+    isAnalyzing.value = true
+    analyzingText.value = '正在生成您的健康报告...'
+    analyzingProgress.value = 0
+
+    // 模拟进度
+    const progressInterval = setInterval(() => {
+      if (analyzingProgress.value < 90) {
+        analyzingProgress.value += Math.random() * 10
+      }
+    }, 300)
+
+    // 提交空的答案数组表示跳过
+    const response = await analysisAPI.submitAnswers(props.sessionId, [])
+    
+    clearInterval(progressInterval)
+    analyzingProgress.value = 100
+
+    if (response.success) {
+      questionsAnswered.value = true
+      
+      // 添加用户跳过问诊的消息
+      messages.value.push({
+        id: Date.now(),
+        type: 'user',
+        sender: 'user',
+        content: '我选择跳过问诊，直接查看报告。',
+        timestamp: new Date().toISOString(),
+        data: { skipped: true }
+      })
+
+      // 添加AI报告消息
+      messages.value.push({
+        id: Date.now() + 1,
+        type: 'report',
+        sender: 'ai',
+        content: response.data.report.summary,
+        timestamp: new Date().toISOString(),
+        data: response.data.report
+      })
+
+      await scrollToBottom()
+    }
+  } catch (error) {
+    console.error('跳过问诊失败:', error)
+    showMessage('生成报告失败，请重试', 'error')
+  } finally {
+    isAnalyzing.value = false
+    analyzingProgress.value = 0
+  }
+}
+
 const scrollToBottom = async () => {
   await nextTick()
   if (messagesContainer.value) {
@@ -527,14 +591,14 @@ onMounted(async () => {
       addInitialMessages()
       // 注意：问题生成由 watch 监听器处理，这里不需要重复调用
     } else {
-      // 如果已有分析但没有问题，生成问题
-      const hasAnalysis = messages.value.some(m => m.type === 'analysis')
-      const hasQuestions = messages.value.some(m => m.type === 'question')
-      
+    // 如果已有分析但没有问题，生成问题
+    const hasAnalysis = messages.value.some(m => m.type === 'analysis')
+    const hasQuestions = messages.value.some(m => m.type === 'question')
+    
       if (hasAnalysis && !hasQuestions && !questionsAnswered.value && !questionsGenerated.value) {
-        setTimeout(() => {
-          generateQuestions()
-        }, 1000)
+      setTimeout(() => {
+        generateQuestions()
+      }, 1000)
       }
     }
   }
@@ -741,6 +805,31 @@ const getScoreColor = (score) => {
   background: #e5e7eb;
   color: #9ca3af;
   cursor: not-allowed;
+}
+
+.skip-button {
+  padding: 12px 20px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.skip-button:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.skip-button:active {
+  background: #e2e8f0;
+  transform: translateY(1px);
 }
 
 /* 报告样式 */

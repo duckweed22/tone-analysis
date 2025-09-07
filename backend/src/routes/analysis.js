@@ -185,10 +185,17 @@ const GENERATE_REPORT_PROMPT = `你是一位资深的中医健康管理专家，
 
 【报告生成要求】
 1. 综合分析舌诊和问诊结果，形成整体判断
+   - 如果问诊结果为空数组[]，则仅基于舌诊分析生成报告
+   - 如果问诊结果有数据，则结合舌诊和问诊结果进行综合分析
 2. 结合中医理论，分析病机特点
 3. 提供个性化的调理建议
 4. 推荐适合的产品和生活方式
 5. 给出合理的风险评估和就医建议
+
+【重要提醒】
+- 当问诊结果为空时，在questionnaireInsights部分说明"用户选择跳过问诊，仅基于舌诊分析"
+- 当问诊结果为空时，在summary中说明"基于舌诊分析的综合评估"
+- 当问诊结果为空时，在productRecommendations中仅基于舌诊分析推荐产品
 
 请按照以下JSON格式返回综合报告：
 
@@ -525,9 +532,18 @@ async function analysisRoutes(fastify, options) {
       fastify.log.info(`提交问诊答案 - 会话: ${sessionId}, 答案数量: ${answers.length}`)
 
       // 生成综合报告
-      const prompt = GENERATE_REPORT_PROMPT
-        .replace('{tongueAnalysis}', JSON.stringify(record.tongueAnalysis))
-        .replace('{questionnaireResults}', JSON.stringify(answers))
+      let prompt
+      if (answers.length === 0) {
+        // 跳过问诊，只基于舌诊分析生成报告
+        prompt = GENERATE_REPORT_PROMPT
+          .replace('{tongueAnalysis}', JSON.stringify(record.tongueAnalysis))
+          .replace('{questionnaireResults}', '[]')
+      } else {
+        // 正常问诊流程
+        prompt = GENERATE_REPORT_PROMPT
+          .replace('{tongueAnalysis}', JSON.stringify(record.tongueAnalysis))
+          .replace('{questionnaireResults}', JSON.stringify(answers))
+      }
       
       const finalReport = await callDoubaoAPI(fastify, prompt)
 

@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "services": [
+    {
+      "name": "tongue-analysis-backend",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/your-username/your-repo.git",
+        "path": "tone-analysis/backend"
+      },
+      "build": {
+        "command": "npm install",
+        "start": "npm start"
+      },
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "3001"
+      },
+      "resources": {
+        "memory": "512Mi",
+        "cpu": "0.5"
+      }
+    },
+    {
+      "name": "tongue-analysis-frontend",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/your-username/your-repo.git",
+        "path": "tone-analysis"
+      },
+      "build": {
+        "command": "npm install && npm run build",
+        "start": "npx serve -s dist -l 3000"
+      },
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "3000"
+      },
+      "resources": {
+        "memory": "256Mi",
+        "cpu": "0.25"
+      }
+    }
+  ],
+  "databases": [
+    {
+      "name": "tongue-analysis-db",
+      "type": "postgresql",
+      "version": "15"
+    }
+  ]
+}
