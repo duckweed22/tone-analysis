@@ -5,12 +5,12 @@
       "name": "tongue-analysis-backend",
       "source": {
         "type": "git",
-        "url": "https://github.com/your-username/your-repo.git",
+        "url": "https://github.com/duckweed22/tone-analysis.git",
         "path": "tone-analysis/backend"
       },
       "build": {
-        "command": "npm install",
-        "start": "npm start"
+        "command": "cd tone-analysis/backend && npm install",
+        "start": "cd tone-analysis/backend && npm start"
       },
       "env": {
         "NODE_ENV": "production",
@@ -25,12 +25,12 @@
       "name": "tongue-analysis-frontend",
       "source": {
         "type": "git",
-        "url": "https://github.com/your-username/your-repo.git",
+        "url": "https://github.com/duckweed22/tone-analysis.git",
         "path": "tone-analysis"
       },
       "build": {
-        "command": "npm install && npm run build",
-        "start": "npx serve -s dist -l 3000"
+        "command": "cd tone-analysis && npm install && npm run build",
+        "start": "cd tone-analysis && npx serve -s dist -l 3000"
       },
       "env": {
         "NODE_ENV": "production",
